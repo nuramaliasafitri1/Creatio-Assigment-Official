@@ -1,0 +1,10 @@
+﻿{
+  "Descriptor": {
+    "UId": "f636c4ae-ea9d-431c-86a3-2bcc8aa33961",
+    "Name": "UsrAutomateCreateSetofYachtRentals",
+    "ModifiedOnUtc": "\/Date(1759386014000)\/",
+    "ManagerName": "ProcessSchemaManager",
+    "Caption": "Automate Create Set of Yacht Rentals",
+    "DependsOn": []
+  }
+}
