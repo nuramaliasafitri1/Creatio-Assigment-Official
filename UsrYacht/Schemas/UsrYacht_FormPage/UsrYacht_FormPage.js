@@ -1,4 +1,4 @@
-define("UsrYacht_FormPage", /**SCHEMA_DEPS*/[]/**SCHEMA_DEPS*/, function/**SCHEMA_ARGS*/()/**SCHEMA_ARGS*/ {
+define("UsrYacht_FormPage", /**SCHEMA_DEPS*/["@creatio-devkit/common"]/**SCHEMA_DEPS*/, function/**SCHEMA_ARGS*/(sdk)/**SCHEMA_ARGS*/ {
 	return {
 		viewConfigDiff: /**SCHEMA_VIEW_CONFIG_DIFF*/[
 			{
@@ -734,6 +734,11 @@ define("UsrYacht_FormPage", /**SCHEMA_DEPS*/[]/**SCHEMA_DEPS*/, function/**SCHEM
 					"PDS_UsrComment_yn23q5y": {
 						"modelConfig": {
 							"path": "PDS.UsrComment"
+						},
+						"validators":{
+							"required":{
+								"type": "crt.Required"
+							}
 						}
 					},
 					"PDS_UsrStatus_rjjq9bb": {
@@ -886,7 +891,40 @@ define("UsrYacht_FormPage", /**SCHEMA_DEPS*/[]/**SCHEMA_DEPS*/, function/**SCHEM
 			}
 		]/**SCHEMA_MODEL_CONFIG_DIFF*/,
 		handlers: /**SCHEMA_HANDLERS*/[
-			
+			{
+				request: "crt.HandleViewModelAttributeChangeRequest",
+				handler: async (request, next ) => {
+					if (request.attributeName === 'PDS_UsrPrice_6tzuc0k' || request.attributeName === 'PDS_UsrPassengersCount_28kxzo8'){
+						let price = await request.$context.PDS_UsrPrice_6tzuc0k;
+						let passengers = await request.$context.PDS_UsrPassengersCount_28kxzo8;
+						let ticket_price = 0;
+
+						if (passengers != 0) {
+							ticket_price = price / passengers;
+						}
+						request.$context.PDS_UsrTicketPrice_pmu6rhh = ticket_price;
+					}
+					return next?.handle(request);
+				}
+			},
+			{
+				request: "crt.HandleViewModelAttributeChangeRequest",
+				handler: async (request, next) => {
+					if (request.attributeName === 'PDS_UsrPrice_6tzuc0k') {
+						let sysSettingsService = new sdk.SysSettingsService();
+						let minPrice = (await sysSettingsService.getByCode('MinPriceToRequireYachtComment')).value;
+						let price = await request.$context.PDS_UsrPrice_6tzuc0k;
+						let isRequired = price > minPrice;
+
+						if(isRequired){
+							request.$context.enableAttributeValidator('PDS_UsrComment_yn23q5y', 'required');
+						} else {
+							request.$context.disableAttributeValidator('PDS_UsrComment_yn23q5y','required');
+						}
+					}
+					return next?.handle(request);
+				}
+			}
 		]/**SCHEMA_HANDLERS*/,
 		converters: /**SCHEMA_CONVERTERS*/{}/**SCHEMA_CONVERTERS*/,
 		validators: /**SCHEMA_VALIDATORS*/{
