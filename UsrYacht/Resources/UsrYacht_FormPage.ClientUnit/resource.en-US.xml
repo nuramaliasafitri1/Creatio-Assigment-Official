@@ -17,6 +17,7 @@
 			<Item Name="LocalizableStrings.GridDetailSettingsBtnYachtRental_caption.Value" Value="Actions" />
 			<Item Name="LocalizableStrings.LengthCannotBeLess.Value" Value="Length must be greater than 4" />
 			<Item Name="LocalizableStrings.PriceCannotBeLess.Value" Value="Price per day must be greater than 100" />
+			<Item Name="LocalizableStrings.RunWebServiceBtn_caption.Value" Value="Run Web Service (Operational Status)" />
 		</Items>
 	</Group>
 </Resources>

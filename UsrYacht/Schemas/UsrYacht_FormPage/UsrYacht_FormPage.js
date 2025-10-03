@@ -51,6 +51,30 @@ define("UsrYacht_FormPage", /**SCHEMA_DEPS*/["@creatio-devkit/common"]/**SCHEMA_
 			},
 			{
 				"operation": "insert",
+				"name": "RunWebServiceBtn",
+				"values": {
+					"type": "crt.Button",
+					"caption": "#ResourceString(RunWebServiceBtn_caption)#",
+					"color": "default",
+					"disabled": false,
+					"size": "medium",
+					"iconPosition": "left-icon",
+					"visible": true,
+					"icon": "process-button-icon",
+					"clicked": {
+						"request": "mii.RunWebServiceRequest",
+						"params": {
+							"showSuccessMessage": true
+						}
+					},
+					"clickMode": "default"
+				},
+				"parentName": "CardToggleContainer",
+				"propertyName": "items",
+				"index": 0
+			},
+			{
+				"operation": "insert",
 				"name": "AddYachtRentalSetButton",
 				"values": {
 					"type": "crt.Button",
@@ -75,7 +99,7 @@ define("UsrYacht_FormPage", /**SCHEMA_DEPS*/["@creatio-devkit/common"]/**SCHEMA_
 				},
 				"parentName": "CardToggleContainer",
 				"propertyName": "items",
-				"index": 0
+				"index": 1
 			},
 			{
 				"operation": "insert",
@@ -735,8 +759,8 @@ define("UsrYacht_FormPage", /**SCHEMA_DEPS*/["@creatio-devkit/common"]/**SCHEMA_
 						"modelConfig": {
 							"path": "PDS.UsrComment"
 						},
-						"validators":{
-							"required":{
+						"validators": {
+							"required": {
 								"type": "crt.Required"
 							}
 						}
@@ -923,6 +947,47 @@ define("UsrYacht_FormPage", /**SCHEMA_DEPS*/["@creatio-devkit/common"]/**SCHEMA_
 						}
 					}
 					return next?.handle(request);
+				}
+			},
+			{
+				request: "mii.RunWebServiceRequest",
+				handler: async (request, next) => {
+					console.log("Run web service button works ..");
+
+					//get id from type lookup drive type object
+					var driveTypeObject = await request.$context.PDS_UsrDriveType_u5pkjr7;
+					var driveTypeId = "";
+					if (driveTypeObject) {
+						driveTypeId = driveTypeObject.value;
+					}
+
+					// Create an instance of the HTTP client from #creatio-devkit/common.
+					const httpClientService = new sdk.HttpClientService();
+
+					// Specify the URL to run web service method
+					const baseUrl = Terrasoft.utils.uri.getConfigurationWebServiceBaseUrl();
+					const transferName = "rest";
+					const serviceName = "YachtService";
+					const methodName = "GetAvgPriceByDriveTypeId";
+					const endpoint = Terrasoft.combinePath(baseUrl, transferName, serviceName, methodName);
+
+					// Send a POST HTTP request. The HTTP client converts the response body from JSON to a JS object automatically.
+					var params = {
+						driveTypeId:  driveTypeId		
+					};
+					const response = await httpClientService.post(endpoint, params);
+					const responseValue = response.body.GetAvgPriceByDriveTypeIdResult;
+					
+					console.log(responseValue);
+					
+					if (responseValue == "-1") {
+						alert(response.body.GetAvgPriceByDriveTypeIdResult);
+					} else {
+						alert("Average yacht price with status Operational = EUR " + responseValue.toFixed(2));
+					}
+					
+					// Call the next handler if it exists and return its value
+					return next?.handler(request);
 				}
 			}
 		]/**SCHEMA_HANDLERS*/,
